@@ -12,11 +12,11 @@ void main() {
   // In a real-world scenario, you would have a main_prod.dart
   // that would inject the real repositories.
   mainCommon([
+    // Repositories (data layer only)
     Provider<LocationsRepository>(create: (_) => LocationRepositoryMock()),
     Provider<RidesRepository>(create: (_) => RideRepositoryMock()),
     Provider<RidePreferenceRepository>(
       create: (_) => RidePreferenceRepositoryMock(),
     ),
-    // We will add the states here later
   ]);
 }
