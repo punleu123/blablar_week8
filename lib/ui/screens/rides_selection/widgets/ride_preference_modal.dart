@@ -5,9 +5,8 @@ import '../../../../model/ride_pref/ride_pref.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/buttons/bla_icon_button.dart';
 
-
 //
-// Wrap the ride preference picker within a modal 
+// Wrap the ride preference picker within a modal
 //
 class RidePreferenceModal extends StatefulWidget {
   const RidePreferenceModal({super.key, required this.initialPreference});
@@ -53,9 +52,12 @@ class _RidePreferenceModalState extends State<RidePreferenceModal> {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(10),
-                child: BlaRidePreferencePicker(
-                  initRidePreference: widget.initialPreference,
-                  onRidePreferenceSelected: onRidePreferenceSelected,
+                child: Material(
+                  color: Colors.transparent,
+                  child: BlaRidePreferencePicker(
+                    initRidePreference: widget.initialPreference,
+                    onRidePreferenceSelected: onRidePreferenceSelected,
+                  ),
                 ),
               ),
             ),

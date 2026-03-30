@@ -65,9 +65,12 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // 2 - THE FORM
-              BlaRidePreferencePicker(
-                initRidePreference: RidePrefsService.selectedPreference,
-                onRidePreferenceSelected: onRidePrefSelected,
+              Material(
+                color: Colors.transparent,
+                child: BlaRidePreferencePicker(
+                  initRidePreference: RidePrefsService.selectedPreference,
+                  onRidePreferenceSelected: onRidePrefSelected,
+                ),
               ),
               SizedBox(height: BlaSpacings.m),
 

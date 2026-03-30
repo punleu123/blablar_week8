@@ -1,7 +1,8 @@
-import 'package:blabla/services/location_service.dart';
 import 'package:blabla/ui/widgets/display/bla_divider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../data/repositories/location/location_reopsitory.dart';
 import '../../../model/ride/locations.dart';
 import '../../theme/theme.dart';
 
@@ -19,6 +20,9 @@ class BlaLocationPicker extends StatefulWidget {
 
 class _BlaLocationPickerState extends State<BlaLocationPicker> {
   String currentSearchText = "";
+  List<Location> _allLocations = [];
+  bool _isLoading = true;
+  bool _initialized = false;
 
   void onTap(Location location) {
     Navigator.pop<Location>(context, location);
@@ -34,10 +38,27 @@ class _BlaLocationPickerState extends State<BlaLocationPicker> {
 
     // Initilize the search bar if any initial location
     if (widget.initLocation != null) {
-      setState(() {
-        currentSearchText = widget.initLocation!.name;
-      });
+      currentSearchText = widget.initLocation!.name;
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialized) return;
+    _initialized = true;
+
+    _loadLocations();
+  }
+
+  Future<void> _loadLocations() async {
+    final repository = context.read<LocationsRepository>();
+    final locations = await repository.getLocations();
+    if (!mounted) return;
+    setState(() {
+      _allLocations = locations;
+      _isLoading = false;
+    });
   }
 
   void onSearchChanged(String search) {
@@ -50,7 +71,7 @@ class _BlaLocationPickerState extends State<BlaLocationPicker> {
     if (currentSearchText.length < 2) {
       return [];
     }
-    return LocationsService.availableLocations
+    return _allLocations
         .where(
           (location) => location.name.toUpperCase().contains(
             currentSearchText.toUpperCase(),
@@ -79,13 +100,15 @@ class _BlaLocationPickerState extends State<BlaLocationPicker> {
             SizedBox(height: 20),
 
             Expanded(
-              child: ListView.builder(
-                itemCount: filteredLocation.length,
-                itemBuilder: (context, index) => LocationTile(
-                  location: filteredLocation[index],
-                  onTap: onTap,
-                ),
-              ),
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      itemCount: filteredLocation.length,
+                      itemBuilder: (context, index) => LocationTile(
+                        location: filteredLocation[index],
+                        onTap: onTap,
+                      ),
+                    ),
             ),
           ],
         ),
