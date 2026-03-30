@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../model/ride/ride.dart';
 import '../../../model/ride_pref/ride_pref.dart';
-import '../../../services/ride_prefs_service.dart';
 import '../../../services/rides_service.dart';
 import '../../../utils/animations_util.dart' show AnimationUtils;
+import '../../states/ride_preference_state.dart';
 import '../../theme/theme.dart';
 import 'widgets/ride_preference_modal.dart';
 import 'widgets/rides_selection_header.dart';
@@ -35,32 +36,49 @@ class _RidesSelectionScreenState extends State<RidesSelectionScreen> {
     // Later
   }
 
-  RidePreference get selectedRidePreference =>
-      RidePrefsService.selectedPreference!; // not null at this state
+  RidePreference? get selectedRidePreference =>
+      context.watch<RidePreferenceState>().currentPreference;
 
-  List<Ride> get matchingRides =>
-      RidesService.getRidesFor(selectedRidePreference);
+  List<Ride> get matchingRides {
+    final pref = selectedRidePreference;
+    if (pref == null) return [];
+    return RidesService.getRidesFor(pref);
+  }
 
   void onPreferencePressed() async {
+    final currentPref = selectedRidePreference;
+    if (currentPref == null) return;
+
+    if (!mounted) return;
+
     // 1 - Navigate to the rides preference picker
     RidePreference? newPreference = await Navigator.of(context)
         .push<RidePreference>(
           AnimationUtils.createRightToLeftRoute(
-            RidePreferenceModal(initialPreference: selectedRidePreference),
+            RidePreferenceModal(initialPreference: currentPref),
           ),
         );
 
-    if (newPreference != null) {
-      // 2 - Ask the service to update the current preference
-      RidePrefsService.selectPreference(newPreference);
-
-      // 3 -   Update the widget state  - TODO Improve this with proper state managagement
-      setState(() {});
+    if (newPreference != null && mounted) {
+      // 2 - Update via global state
+      context.read<RidePreferenceState>().selectPreference(newPreference);
+      // Note: No setState() needed! State updates automatically
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final pref = selectedRidePreference;
+    
+    // If no preference selected, show error or redirect
+    if (pref == null) {
+      return Scaffold(
+        body: Center(
+          child: Text('No ride preference selected'),
+        ),
+      );
+    }
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.only(
@@ -68,7 +86,7 @@ class _RidesSelectionScreenState extends State<RidesSelectionScreen> {
         child: Column(
           children: [
             RideSelectionHeader(
-              ridePreference: selectedRidePreference,
+              ridePreference: pref,
               onBackPressed: onBackTap,
               onFilterPressed: onFilterPressed,
               onPreferencePressed: onPreferencePressed,
