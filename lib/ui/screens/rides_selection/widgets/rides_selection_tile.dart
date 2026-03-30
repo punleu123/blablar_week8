@@ -17,7 +17,7 @@ class RideSelectionTile extends StatelessWidget {
   String get arrival => "Departure: ${ride.arrivalLocation.name}";
   String get time => "Time: ${DateTimeUtils.formatTime(ride.departureDate)}";
   String get price => "Price: ${ride.pricePerSeat}";
-  String get seats => "Avaialble seats: ${ride.availableSeats}";
+  String get seats => "Available seats: ${ride.availableSeats}";
   
   @override
   Widget build(BuildContext context) {

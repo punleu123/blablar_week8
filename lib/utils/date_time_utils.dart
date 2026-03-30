@@ -24,4 +24,8 @@ class DateTimeUtils {
   static String formatTime(DateTime dateTime) {
     return DateFormat('HH:mm').format(dateTime); // Example: 14:30 (24-hour format)
   }
+
+  static bool isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
 }
